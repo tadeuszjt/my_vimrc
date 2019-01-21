@@ -80,7 +80,7 @@ vnoremap <C-c> "+y
 set splitbelow
 set splitright
 
-" no stupid .swp everywhere
+" no .swp everywhere
 set noswapfile
 
 " Latex stuff
@@ -92,10 +92,10 @@ nmap ; :
 " Keep cursor away from ends
 set scrolloff=5
 
-" Disable highlighting shit
+" Disable highlighting
 let g:ycm_enable_diagnostic_highlighting = 0
 
-" no fucking beeping
+" no beeping
 set noerrorbells
 
 " Workman Remap
