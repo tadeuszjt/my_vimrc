@@ -1,66 +1,68 @@
-" All system-wide defaults are set in $VIMRUNTIME/debian.vim and sourced by
-" the call to :runtime you can find below.  If you wish to change any of those
-" settings, you should do it in this file (/etc/vim/vimrc), since debian.vim
-" will be overwritten everytime an upgrade of the vim packages is performed.
-" It is recommended to make changes after sourcing debian.vim since it alters
-" the value of the 'compatible' option.
+source $VIMRUNTIME/vimrc_example.vim
 
-" This line should not be removed as it ensures that various options are
-" properly set to work with the Vim-related packages available in Debian.
-runtime! debian.vim
+set diffexpr=MyDiff()
+function MyDiff()
+  let opt = '-a --binary '
+  if &diffopt =~ 'icase' | let opt = opt . '-i ' | endif
+  if &diffopt =~ 'iwhite' | let opt = opt . '-b ' | endif
+  let arg1 = v:fname_in
+  if arg1 =~ ' ' | let arg1 = '"' . arg1 . '"' | endif
+  let arg1 = substitute(arg1, '!', '\!', 'g')
+  let arg2 = v:fname_new
+  if arg2 =~ ' ' | let arg2 = '"' . arg2 . '"' | endif
+  let arg2 = substitute(arg2, '!', '\!', 'g')
+  let arg3 = v:fname_out
+  if arg3 =~ ' ' | let arg3 = '"' . arg3 . '"' | endif
+  let arg3 = substitute(arg3, '!', '\!', 'g')
+  if $VIMRUNTIME =~ ' '
+    if &sh =~ '\<cmd'
+      if empty(&shellxquote)
+        let l:shxq_sav = ''
+        set shellxquote&
+      endif
+      let cmd = '"' . $VIMRUNTIME . '\diff"'
+    else
+      let cmd = substitute($VIMRUNTIME, ' ', '" ', '') . '\diff"'
+    endif
+  else
+    let cmd = $VIMRUNTIME . '\diff'
+  endif
+  let cmd = substitute(cmd, '!', '\!', 'g')
+  silent execute '!' . cmd . ' ' . opt . arg1 . ' ' . arg2 . ' > ' . arg3
+  if exists('l:shxq_sav')
+    let &shellxquote=l:shxq_sav
+  endif
+endfunction
 
-" Vim will load $VIMRUNTIME/defaults.vim if the user does not have a vimrc.
-" This happens after /etc/vim/vimrc(.local) are loaded, so it will override
-" any settings in these files.
-" If you don't want that to happen, uncomment the below line to prevent
-" defaults.vim from being loaded.
-" let g:skip_defaults_vim = 1
-
-" Uncomment the next line to make Vim more Vi-compatible
-" NOTE: debian.vim sets 'nocompatible'.  Setting 'compatible' changes numerous
-" options, so any other options should be set AFTER setting 'compatible'.
-"set compatible
-
-" Vim5 and later versions support syntax highlighting. Uncommenting the next
-" line enables syntax highlighting by default.
-syntax on
-
-" If using a dark background within the editing area and syntax highlighting
-" turn on this option as well
-set background=dark
-
-" Uncomment the following to have Vim jump to the last position when
-" reopening a file
-"if has("autocmd")
-"  au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
-"endif
-
-" Uncomment the following to have Vim load indentation rules and plugins
-" according to the detected filetype.
-if has("autocmd")
-  filetype plugin indent on
+"my stuff
+" for viavi
+if !exists("autocommands_loaded")
+    let autocommands_loaded = 1
+    " Magic command to strip trailing spaces from certain filetypes
+    autocmd FileType c,cpp autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
+    " Set to 3 space soft tabs for C/C++
+    autocmd FileType c,cpp set et sw=3 ts=3
 endif
 
-" The following are commented out as they cause vim to behave a lot
-" differently from regular Vi. They are highly recommended though.
-"set showcmd		" Show (partial) command in status line.
-"set showmatch		" Show matching brackets.
-"set ignorecase		" Do case insensitive matching
-"set smartcase		" Do smart case matching
-"set incsearch		" Incremental search
-"set autowrite		" Automatically save before commands like :next and :make
-"set hidden		" Hide buffers when they are abandoned
-"set mouse=a		" Enable mouse usage (all modes)
+set guifont=Consolas:h11
+map ; :
 
-" Source a global configuration file if available
-"if filereadable("/etc/vim/vimrc.local")
-"  source /etc/vim/vimrc.local
-"endif
+" no line wrapping shite
+set nowrap
+set textwidth=0
+set wrapmargin=0
 
+" no junk files
+set noswapfile
+set nobackup
+set nowritebackup
+set noundofile
 
-" MY STUFF
-" settab space to 4
-set tabstop=4 shiftwidth=4
+" keep cursor away from ends
+set scrolloff=9
+
+set tabstop=4
+set shiftwidth=4
 
 " set better pane navigation
 nnoremap <C-H> <C-W><C-H>
@@ -69,34 +71,9 @@ nnoremap <C-K> <C-W><C-K>
 nnoremap <C-L> <C-W><C-L>
 
 " better tab navigation
+nnoremap <C-t> :tabedit <CR>
 nnoremap <Tab> gt
 nnoremap <S-Tab> gT
-
-" Paste
-map <C-v> "+p
-vnoremap <C-c> "+y
-
-" more natural split
-set splitbelow
-set splitright
-
-" no .swp everywhere
-set noswapfile
-
-" Latex stuff
-let g:livepreview_previewer = 'mupdf'
-
-" New command key
-nmap ; :
-
-" Keep cursor away from ends
-set scrolloff=5
-
-" Disable highlighting
-let g:ycm_enable_diagnostic_highlighting = 0
-
-" no beeping
-set noerrorbells
 
 " Workman Remap
 " hjkl -> yneo
@@ -104,6 +81,7 @@ set noerrorbells
 " Search (N)ext -> (J)ump
 " (E)nd word -> brea(K) of word
 " (O)pen new line -> (L)ine
+" jJ -> Search forwards/backwards
 nnoremap l o
 vnoremap l o
 nnoremap o l
@@ -137,3 +115,26 @@ nnoremap H Y
 vnoremap H Y
 nnoremap Y H
 vnoremap Y H
+
+"nicer for my hands
+nnoremap t v
+nnoremap T V
+nnoremap v <nop>
+nnoremap V <nop>
+
+"vim splits
+set splitbelow
+set splitright
+nnoremap <C-Y> <C-W><C-H>
+nnoremap <C-N> <C-W><C-J>
+nnoremap <C-E> <C-W><C-K>
+nnoremap <C-O> <C-W><C-L>
+nnoremap <C-s> :w <CR>
+nnoremap <C-w> :q <CR>
+nnoremap <C-h> :Vexplore! <CR>
+
+"working directory always current file
+set autochdir
+
+"line numbers
+set number
